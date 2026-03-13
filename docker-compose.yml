@@ -1,28 +1,38 @@
-version: "3.9"
-
 services:
   backend:
     build:
-      context: ./backend
+      context: proyecto/backend/
     container_name: citas-backend
     ports:
-      - "3001:3000"
-    volumes:
-      - ./backend:/app
-    command: npm run dev
-    environment:
-      - NODE_ENV=development
+      - "3010:3010"
+    depends_on:
+      - database
+    networks:
+      - app-citas
 
   frontend:
     build:
-      context: ./frontend/app-citas
+      context: proyecto/frontend/app-citas
     container_name: citas-frontend
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend/app-citas:/app
-    command: npm run dev
-    environment:
-      - NODE_ENV=development
     depends_on:
       - backend
+    networks:
+      - app-citas
+
+  database:
+    image: mysql:9.5
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-citas
+
+networks:
+  app-citas:
+    driver: bridge

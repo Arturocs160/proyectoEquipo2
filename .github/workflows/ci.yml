@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push: 
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  backend_ci:
+    name: Backend CI (Build and Test)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Iniciar base de datos MySQL
+        run: |
+          docker run -d \
+            --name database \
+            -e MYSQL_DATABASE=${{ secrets.DB_DATABASE }} \
+            -e MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -v ${{ github.workspace }}/init.sql:/docker-entrypoint-initdb.d/init.sql \
+            -p 3306:3306 \
+            mysql:9.5
+
+      - name: Esperar a que MySQL esté listo
+        run: |
+          until docker exec database mysqladmin ping -h localhost --silent; do
+            echo "Esperando a MySQL..."
+            sleep 2
+          done
+
+      - name: Crear archivo .env
+        run: |
+          touch ./proyecto/backend/.env
+          echo "PORT=${{ secrets.PORT }}" >> ./proyecto/backend/.env
+          echo "SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}" >> ./proyecto/backend/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> ./proyecto/backend/.env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> ./proyecto/backend/.env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> ./proyecto/backend/.env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ./proyecto/backend/.env
+          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> ./proyecto/backend/.env
+
+      - name: Construir backend mediante imagen de docker
+        run: docker build -t backend ./proyecto/backend/
+
+      - name: Ejecutar tests del backend en contenedor
+        run: docker run --rm --network host backend npm test
+
+  frontend_ci:
+    name: Frontend CI (Build and Test)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Construir frontend mediante imagen de docker
+        run: docker build -t frontend ./proyecto/frontend/app-citas/
+        
+      - name: Ejecutar tests del frontend
+        run: docker run --rm frontend npm test
+        

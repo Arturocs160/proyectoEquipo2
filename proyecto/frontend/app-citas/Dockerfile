@@ -1,6 +1,6 @@
 FROM node:20-bookworm
 
-WORKDIR /app
+WORKDIR /app-front
 
 COPY package*.json ./
 RUN npm install
