@@ -81,7 +81,33 @@ export default function RegistroPage() {
           ¿Ya tienes cuenta? <a href="/login">Iniciar Sesión</a>
         </p>
 
-        <button type="submit" disabled={loading} className="crear-btn">Crear Cuenta</button>
+        <button
+          type="submit"
+          disabled={loading}
+          aria-busy={loading}
+          className="crear-btn flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {loading && (
+            <span
+              className="
+        motion-safe:animate-spin
+        motion-reduce:animate-none
+        inline-block
+        w-4
+        h-4
+        border-2
+        border-white
+        border-t-transparent
+        rounded-full
+      "
+              aria-hidden="true"
+            />
+          )}
+
+          <span>
+            {loading ? "Creando cuenta..." : "Crear Cuenta"}
+          </span>
+        </button>
       </form>
     </main>
   );
