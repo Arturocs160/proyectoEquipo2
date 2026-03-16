@@ -11,8 +11,6 @@ export async function registerUser(full_name: string, email: string, password: s
 
     const data = await res.json();
 
-    console.log(res);
-
     if (!res.ok && data?.details?.length > 0) {
         throw new Error(data?.details[0].message || "Error al registrar usuario");
     } else if (!res.ok) {
