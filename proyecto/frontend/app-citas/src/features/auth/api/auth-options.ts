@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
+        maxAge: 30 * 24 * 60 * 60, // 30 días de persistencia
     },
     providers: [
         CredentialsProvider({
@@ -72,7 +73,8 @@ export const authOptions: NextAuthOptions = {
                 httpOnly: true,
                 sameSite: 'lax',
                 path: '/',
-                secure: false
+                secure: process.env.NODE_ENV === "production",
+                maxAge: 30 * 24 * 60 * 60, // Persistencia de la cookie
             },
         },
     },
