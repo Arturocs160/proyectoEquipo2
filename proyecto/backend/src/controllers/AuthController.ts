@@ -1,3 +1,4 @@
+import AuthModel from "@models/AuthModel";
 import AuthService from "@services/AuthService";
 import { Request, Response } from "express";
 
@@ -23,6 +24,13 @@ class AuthController {
     static async register(request: Request, response: Response) {
         try {
             const { full_name, email, password, phone } = request.body;
+
+            const user = await AuthModel.login(email);
+
+            if (user.length > 0) {
+                response.status(401).json({ message: "El usuario ya existe" });
+                return;
+            }
 
             const result = await AuthService.register(full_name, email, password, "owner", phone);
 
