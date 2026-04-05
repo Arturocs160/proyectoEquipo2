@@ -115,6 +115,10 @@ export default function LoginPage() {
           ¿No tienes cuenta? <Link href="/register" className="text-blue-600 hover:underline">Regístrate</Link>
         </p>
 
+        <p className="registro-link mt-4 text-sm">
+          ¿Olvidaste tu contraseña? <Link href="/reset-password" className="text-blue-600 hover:underline">Restablecer contraseña</Link>
+        </p>
+
         <button
           type="submit"
           className="entrar-btn mt-6"
