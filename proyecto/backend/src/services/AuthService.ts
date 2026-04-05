@@ -107,7 +107,7 @@ class AuthService {
 
         const token = jwt.sign({ email, timestamp }, secret, { expiresIn: "15m", algorithm: "HS256" });
 
-        const resetUrl = `http://localhost:3000/new-password?id=${id}&token=${token}`;
+        const resetUrl = `${process.env.BASE_URL_FRONT}/new-password?id=${id}&token=${token}`;
 
         const { data, error } = await resend.emails.send({
             from: process.env.EMAIL_FROM as string,
