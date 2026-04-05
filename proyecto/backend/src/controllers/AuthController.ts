@@ -25,7 +25,7 @@ class AuthController {
         try {
             const { full_name, email, password, phone } = request.body;
 
-            const user = await AuthModel.login(email);
+            const user = await AuthModel.getUserByEmail(email);
 
             if (user.length > 0) {
                 response.status(401).json({ message: "El usuario ya existe" });
@@ -58,6 +58,29 @@ class AuthController {
             response.status(200).json({ message: "Logout exitoso" })
         } catch (error) {
             response.status(500).json({ message: "Error al cerrar sesión" })
+        }
+    }
+
+    static async forgotPassword(request: Request, response: Response) {
+        try {
+            const { email } = request.body;
+            await AuthService.processForgotPassword(email);
+
+            response.status(200).json({ message: 'Si el correo existe, se ha enviado un enlace de recuperación.' });
+        } catch (error: any) {
+            console.log(error);
+            response.status(400).json({ message: 'Error al procesar la solicitud' });
+        }
+    }
+
+    static async resetPassword(request: Request, response: Response) {
+        try {
+            const { id, token, newPassword } = request.body;
+            await AuthService.processResetPassword(id, token, newPassword);
+
+            response.status(200).json({ message: 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión.' });
+        } catch (error: any) {
+            response.status(400).json({ message: 'Error al restablecer la contraseña' });
         }
     }
 }

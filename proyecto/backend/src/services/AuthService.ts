@@ -3,13 +3,42 @@ import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
 import AuthModel from "@models/AuthModel";
 import TokenBlacklistModel from "@models/TokenBlacklistModel";
+import { Resend } from "resend";
 
 import "dotenv/config"
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const structureEmailHtml = (resetUrl: string) => {
+    return `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+    <meta charset="UTF-8">
+    <title>Restablecer Contrasena</title>
+    </head>
+    <body style="font-family: sans-serif; background-color: #f4f4f7; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 8px;">
+        <h2 style="color: #333333; margin-top: 0;">Restablecimiento de contrasena</h2>
+        <p style="color: #555555; font-size: 16px;">Hola,</p>
+        <p style="color: #555555; font-size: 16px;">Recibimos una solicitud para restablecer la contrasena de tu cuenta en el sistema de gestion de citas. Si no hiciste esta solicitud, puedes ignorar este correo de forma segura.</p>
+        <div style="text-align: center; margin: 30px 0;">
+        <a href="${resetUrl}" style="background-color: #007bff; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; display: inline-block;">Restablecer mi contrasena</a>
+        </div>
+        <p style="color: #555555; font-size: 14px;">Si el boton no funciona, copia y pega el siguiente enlace en tu navegador:</p>
+        <p style="color: #007bff; font-size: 14px; word-break: break-all;">${resetUrl}</p>
+        <hr style="border: none; border-top: 1px solid #eeeeee; margin: 30px 0;">
+        <p style="color: #999999; font-size: 12px; text-align: center;">Gestion de Citas &copy; 2026. Todos los derechos reservados.</p>
+    </div>
+    </body>
+    </html>
+    `
+}
 
 class AuthService {
 
     static async login(email: string, password: string) {
-        const user = await AuthModel.login(email);
+        const user = await AuthModel.getUserByEmail(email);
 
         if (user.length === 0) {
             throw new Error("Credenciales inválidas");
@@ -35,7 +64,7 @@ class AuthService {
         const id = randomUUID();
 
         try {
-            await AuthModel.register(id, full_name, email, hashedPassword, role, phone);
+            await AuthModel.createAccount(id, full_name, email, hashedPassword, role, phone);
         } catch (error) {
             throw new Error("Error al registrar el usuario");
         }
@@ -61,6 +90,60 @@ class AuthService {
             console.error(error);
             throw new Error("Error al cerrar sesión");
         }
+    }
+
+    static async processForgotPassword(email: string) {
+        const user = await AuthModel.getUserByEmail(email);
+
+        if (user.length === 0) {
+            throw new Error("El usuario no existe");
+        }
+
+        const { id, password: passwordUser } = user[0];
+
+        const secret = process.env.JWT_SECRET as string + passwordUser;
+
+        const timestamp = Date.now();
+
+        const token = jwt.sign({ email, timestamp }, secret, { expiresIn: "15m", algorithm: "HS256" });
+
+        const resetUrl = `${process.env.BASE_URL_FRONT}/new-password?id=${id}&token=${token}`;
+
+        const { data, error } = await resend.emails.send({
+            from: process.env.EMAIL_FROM as string,
+            to: email,
+            subject: "Reset de contraseña",
+            html: structureEmailHtml(resetUrl),
+        });
+
+        if (error) {
+            throw new Error("Error al enviar el correo: " + error.message);
+        }
+    }
+
+    static async processResetPassword(id: string, token: string, newPassword: string) {
+        const user = await AuthModel.getUserById(id);
+
+        if (user.length === 0) {
+            throw new Error("El usuario no existe");
+        }
+
+        const secret = process.env.JWT_SECRET as string + user[0].password;
+
+        try {
+            jwt.verify(token, secret, { algorithms: ["HS256"] });
+        } catch (error: any) {
+            if (error.name === 'TokenExpiredError' || error.message === 'jwt expired') {
+                throw new Error("El enlace de recuperación ha expirado. Por favor, solicita uno nuevo.");
+            } else if (error.name === 'JsonWebTokenError' || error.message === 'invalid signature') {
+                throw new Error("El enlace de recuperación es inválido o la contraseña ya fue actualizada.");
+            }
+            throw new Error("Error de validación del enlace");
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, Number(process.env.SALT_ROUNDS));
+
+        await AuthModel.updatePassword(id, hashedPassword);
     }
 
 }
