@@ -4,6 +4,17 @@ import "./globals.css";
 import Menu from "../components/Menu";
 import { usePathname } from "next/navigation";
 import { NextAuthProvider } from "@/providers/NextAuthProvider";
+import { Roboto_Serif, Inter } from "next/font/google";
+
+const robotoSerif = Roboto_Serif({
+  subsets: ["latin"],
+  variable: "--font-roboto-serif",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export default function RootLayout({
   children,
@@ -13,24 +24,15 @@ export default function RootLayout({
 
   const pathname = usePathname();
 
-  const hideMenuRoutes = ["/register", "/login", "/client/servicios", "/client/citas", "/client/Explorar",
-    "/admin/dashboard", "/admin/service", "/admin/NuevoServicio", "/admin/EditService",
-    "/admin/ListClient", "/admin/NewClient", "/admin/EditClient", "/admin/ListCitas",
-    "/client/SelectService", "/client/date"
+  const hideMenuRoutes = ["/register", "/login", "/client/list-services", "/client/list-appointments", "/client/business",
+    "/admin/dashboard", "/admin/services-list", "/admin/new-service", "/admin/edit-service",
+    "/admin/employees-list", "/admin/new-employee", "/admin/edit-employee", "/admin/appointments-list",
+    "/client/select-service", "/client/create-appointment", "/reset-password", "/new-password", "/client/client-data"
   ]
 
   return (
-    <html lang="es">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900&display=swap"
-          rel="stylesheet"
-        />
-
-      </head>
-      <body>
+    <html lang="es" className={inter.className}>
+      <body className={`bg-primary`}>
         {!hideMenuRoutes.includes(pathname) && <Menu />}
 
         <NextAuthProvider>
