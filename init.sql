@@ -47,9 +47,76 @@ CREATE TABLE `appointments` (
 
 CREATE TABLE `branches` (
   `id` int NOT NULL,
+  `business_id` int NOT NULL,
   `name` varchar(100) NOT NULL,
   `address` text,
   `phone` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `business_info`
+--
+
+CREATE TABLE `business_info` (
+  `id` int NOT NULL,
+  `slug` varchar(100) DEFAULT NULL,
+  `logo_url` varchar(255) DEFAULT NULL,
+  `name` varchar(150) NOT NULL,
+  `specialty` varchar(150) DEFAULT NULL,
+  `description` text,
+  `location` text,
+  `rating` varchar(50) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `business_info`
+--
+
+INSERT INTO `business_info` (`id`, `slug`, `logo_url`, `name`, `specialty`, `description`, `location`, `rating`) VALUES
+(1, 'studio-arturo', NULL, 'Studio de Belleza Arturo', 'Estética & Bienestar', 'Especialistas en transformar tu imagen con técnicas modernas y atención personalizada. Nuestro compromiso es resaltar tu belleza natural en un ambiente relajado y profesional.', 'Av. Reforma 123, Ciudad de México', '4.9 (120 reseñas)');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `business_hours`
+--
+
+CREATE TABLE `business_hours` (
+  `id` int NOT NULL,
+  `business_id` int NOT NULL,
+  `day_of_week` int NOT NULL COMMENT '0=Dom, 1=Lun, 2=Mar, 3=Mie, 4=Jue, 5=Vie, 6=Sab',
+  `open_time` time DEFAULT NULL,
+  `close_time` time DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `business_hours`
+--
+
+INSERT INTO `business_hours` (`id`, `business_id`, `day_of_week`, `open_time`, `close_time`, `is_active`) VALUES
+(1, 1, 1, '09:00:00', '18:00:00', 1),
+(2, 1, 2, '09:00:00', '18:00:00', 1),
+(3, 1, 3, '09:00:00', '18:00:00', 1),
+(4, 1, 4, '09:00:00', '18:00:00', 1),
+(5, 1, 5, '09:00:00', '18:00:00', 1),
+(6, 1, 6, '09:00:00', '18:00:00', 1),
+(7, 1, 0, NULL, NULL, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `disabled_dates`
+--
+
+CREATE TABLE `disabled_dates` (
+  `id` int NOT NULL,
+  `business_id` int NOT NULL,
+  `closed_date` date NOT NULL,
+  `reason` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -111,9 +178,12 @@ INSERT INTO `revoked_tokens` (`id`, `token`, `expires_at`, `created_at`) VALUES
 
 CREATE TABLE `services` (
   `id` int NOT NULL,
+  `business_id` int NOT NULL,
   `name` varchar(100) NOT NULL,
+  `description` text,
   `duration_minutes` int NOT NULL,
-  `price` decimal(10,2) DEFAULT NULL
+  `price` decimal(10,2) DEFAULT NULL,
+  `image_url` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -160,7 +230,29 @@ ALTER TABLE `appointments`
 -- Indices de la tabla `branches`
 --
 ALTER TABLE `branches`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `business_id` (`business_id`);
+
+--
+-- Indices de la tabla `business_info`
+--
+ALTER TABLE `business_info`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`);
+
+--
+-- Indices de la tabla `business_hours`
+--
+ALTER TABLE `business_hours`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `business_id` (`business_id`);
+
+--
+-- Indices de la tabla `disabled_dates`
+--
+ALTER TABLE `disabled_dates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `business_id` (`business_id`);
 
 --
 -- Indices de la tabla `clients`
@@ -185,7 +277,8 @@ ALTER TABLE `revoked_tokens`
 -- Indices de la tabla `services`
 --
 ALTER TABLE `services`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `business_id` (`business_id`);
 
 --
 -- Indices de la tabla `users`
@@ -208,6 +301,24 @@ ALTER TABLE `appointments`
 -- AUTO_INCREMENT de la tabla `branches`
 --
 ALTER TABLE `branches`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `business_info`
+--
+ALTER TABLE `business_info`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `business_hours`
+--
+ALTER TABLE `business_hours`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de la tabla `disabled_dates`
+--
+ALTER TABLE `disabled_dates`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
@@ -248,10 +359,34 @@ ALTER TABLE `appointments`
   ADD CONSTRAINT `appointments_ibfk_4` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`);
 
 --
+-- Filtros para la tabla `branches`
+--
+ALTER TABLE `branches`
+  ADD CONSTRAINT `branches_ibfk_1` FOREIGN KEY (`business_id`) REFERENCES `business_info` (`id`);
+
+--
 -- Filtros para la tabla `employees`
 --
 ALTER TABLE `employees`
   ADD CONSTRAINT `employees_ibfk_1` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`);
+
+--
+-- Filtros para la tabla `services`
+--
+ALTER TABLE `services`
+  ADD CONSTRAINT `services_ibfk_1` FOREIGN KEY (`business_id`) REFERENCES `business_info` (`id`);
+
+--
+-- Filtros para la tabla `business_hours`
+--
+ALTER TABLE `business_hours`
+  ADD CONSTRAINT `business_hours_ibfk_1` FOREIGN KEY (`business_id`) REFERENCES `business_info` (`id`);
+
+--
+-- Filtros para la tabla `disabled_dates`
+--
+ALTER TABLE `disabled_dates`
+  ADD CONSTRAINT `disabled_dates_ibfk_1` FOREIGN KEY (`business_id`) REFERENCES `business_info` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
