@@ -10,6 +10,7 @@ import {
   Briefcase,
   Users,
   LogOut,
+  Building2
 } from "lucide-react";
 import Logo from "@/components/Logo";
 
@@ -35,6 +36,7 @@ export default function Sidebar() {
     { name: "Mis Citas", href: "/admin/appointments-list", icon: Calendar },
     { name: "Servicios", href: "/admin/services-list", icon: Briefcase },
     { name: "Empleados", href: "/admin/employees-list", icon: Users },
+    { name: "Negocio", href: "/admin/business", icon: Building2 },
   ];
 
   return (
