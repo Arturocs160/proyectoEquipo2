@@ -1,27 +1,27 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   User,
   Users,
   Calendar,
-  Briefcase,
+  Save,
   Mail,
-  Plus,
+  Briefcase,
 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
-import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 interface Branch {
   id: number;
   name: string;
 }
 
-
-export default function NuevoEmpleado() {
+export default function EditEmployee() {
   const router = useRouter();
+  const { id } = useParams() as { id: string };
   const { data: session } = useSession();
 
   const accessToken = session?.user?.accessToken;
@@ -36,50 +36,38 @@ export default function NuevoEmpleado() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState("");
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!selectedBranchId) {
-      alert("Selecciona una sucursal");
-      return;
-    }
-
-    setLoading(true);
+  // Carga los datos del empleado al entrar a la página
+  const fetchEmployee = async () => {
+    if (!id || !accessToken) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/employees`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
-        body: JSON.stringify({
-          branchId: selectedBranchId,
-          fullName: name + " " + lastName,
-          specialty: specialty || null,
-          age: parseInt(age),
-          email: email,
-          isActive: isActive
-        })
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/employees/${id}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
+      const { data } = await res.json();
+      const emp = Array.isArray(data) ? data[0] : data;
 
-      console.log(res);
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Error al crear el empleado');
+      if (emp) {
+        // full_name puede ser "Juan López" — lo separamos en nombre y apellido
+        const parts = (emp.full_name || "").split(" ");
+        setName(parts[0] || "");
+        setLastName(parts.slice(1).join(" ") || "");
+        setEmail(emp.email || "");
+        setSpecialty(emp.specialty || "");
+        setAge(emp.age !== null && emp.age !== undefined ? String(emp.age) : "");
+        setIsActive(Boolean(emp.is_active));
+        if (emp.branch_id) {
+          setSelectedBranchId(String(emp.branch_id));
+        }
       }
-
-      alert('Empleado creado exitosamente');
-      router.push('/admin/employees-list');
-    } catch (error) {
-      console.error('Error creating employee:', error);
-      alert(error instanceof Error ? error.message : 'Error desconocido al crear el empleado');
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      setFetchError("No se pudo cargar la información del empleado.");
     }
   };
 
-  const getBranches = async () => {
+  const fetchBranches = async () => {
     if (!businessId || !accessToken) return;
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/branches/business/${businessId}`, {
@@ -92,7 +80,7 @@ export default function NuevoEmpleado() {
       }));
       setBranches(list);
 
-      if (list.length > 0) {
+      if (!selectedBranchId && list.length > 0) {
         const storedBranch = typeof window !== "undefined" ? localStorage.getItem("adminActiveBranchId") : null;
         const validStored = storedBranch && list.some((branch) => String(branch.id) === String(storedBranch));
         const branchId = validStored ? String(storedBranch) : String(list[0].id);
@@ -104,8 +92,14 @@ export default function NuevoEmpleado() {
   };
 
   useEffect(() => {
+    if (accessToken) {
+      fetchEmployee();
+    }
+  }, [id, accessToken]);
+
+  useEffect(() => {
     if (businessId && accessToken) {
-      getBranches();
+      fetchBranches();
     }
   }, [businessId, accessToken]);
 
@@ -115,6 +109,41 @@ export default function NuevoEmpleado() {
       localStorage.setItem("adminActiveBranchId", selectedBranchId);
     }
   }, [selectedBranchId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/employees/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          branchId: selectedBranchId,
+          fullName: `${name} ${lastName}`.trim(),
+          specialty: specialty || null,
+          age: parseInt(age),
+          email: email,
+          isActive: isActive,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Error al actualizar el empleado");
+      }
+
+      alert("Empleado actualizado exitosamente");
+      router.push("/admin/employees-list");
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      alert(error instanceof Error ? error.message : "Error desconocido al actualizar el empleado");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="flex min-h-screen bg-[#fdfaf5] font-sans">
@@ -129,14 +158,23 @@ export default function NuevoEmpleado() {
             <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
             Volver a la lista
           </Link>
-          <h1 className="text-3xl font-bold text-[#171717] tracking-tight">Registrar Nuevo Colaborador</h1>
-          <p className="text-[#666] mt-1">Completa la información para dar de alta a un nuevo miembro del equipo.</p>
+          <h1 className="text-3xl font-bold text-[#171717] tracking-tight">Editar Perfil del Empleado</h1>
+          <p className="text-[#666] mt-1">Actualiza la información personal y laboral de tu colaborador.</p>
         </header>
 
-        <div className="max-w-4xl">
-          <form className="bg-white rounded-[2.5rem] border border-black/5 shadow-xl shadow-blue-900/5 p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {fetchError && (
+          <div className="max-w-3xl mb-6 p-4 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-medium">
+            {fetchError}
+          </div>
+        )}
 
-            <div className="flex flex-col gap-1.5 md:col-span-1">
+        <div className="max-w-3xl">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-[2.5rem] border border-black/5 shadow-xl shadow-blue-900/5 p-10 grid grid-cols-1 md:grid-cols-2 gap-8"
+          >
+            {/* Nombre */}
+            <div className="flex flex-col gap-1.5 md:col-span-2">
               <label htmlFor="sucursal" className="text-sm font-semibold text-[#171717] ml-1">
                 Sucursal <span className="text-red-500">*</span>
               </label>
@@ -158,6 +196,7 @@ export default function NuevoEmpleado() {
               </select>
             </div>
 
+            {/* Nombre */}
             <div className="flex flex-col gap-1.5 md:col-span-1">
               <label htmlFor="nombre" className="text-sm font-semibold text-[#171717] ml-1">
                 Nombre <span className="text-red-500">*</span>
@@ -166,7 +205,7 @@ export default function NuevoEmpleado() {
                 <input
                   type="text"
                   id="nombre"
-                  placeholder="Ej. Juan"
+                  placeholder="Juan"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full h-12 pl-11 pr-4 border border-black/10 rounded-xl text-base bg-white outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 transition-all"
@@ -175,6 +214,7 @@ export default function NuevoEmpleado() {
               </div>
             </div>
 
+            {/* Apellido */}
             <div className="flex flex-col gap-1.5 md:col-span-1">
               <label htmlFor="apellido" className="text-sm font-semibold text-[#171717] ml-1">
                 Apellido <span className="text-red-500">*</span>
@@ -183,7 +223,7 @@ export default function NuevoEmpleado() {
                 <input
                   type="text"
                   id="apellido"
-                  placeholder="Ej. López"
+                  placeholder="Lopez"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full h-12 pl-11 pr-4 border border-black/10 rounded-xl text-base bg-white outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 transition-all"
@@ -192,6 +232,7 @@ export default function NuevoEmpleado() {
               </div>
             </div>
 
+            {/* Email */}
             <div className="flex flex-col gap-1.5 md:col-span-1">
               <label htmlFor="email" className="text-sm font-semibold text-[#171717] ml-1">
                 Correo Electrónico <span className="text-red-500">*</span>
@@ -209,14 +250,15 @@ export default function NuevoEmpleado() {
               </div>
             </div>
 
+            {/* Especialidad */}
             <div className="flex flex-col gap-1.5 md:col-span-1">
-              <label htmlFor="rol" className="text-sm font-semibold text-[#171717] ml-1">
-                Cargo o Especialidad <span className="text-red-500">*</span>
+              <label htmlFor="especialidad" className="text-sm font-semibold text-[#171717] ml-1">
+                Cargo o Especialidad
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  id="rol"
+                  id="especialidad"
                   placeholder="Ej. Terapeuta"
                   value={specialty}
                   onChange={(e) => setSpecialty(e.target.value)}
@@ -226,15 +268,17 @@ export default function NuevoEmpleado() {
               </div>
             </div>
 
+            {/* Edad */}
             <div className="flex flex-col gap-1.5 md:col-span-1">
               <label htmlFor="edad" className="text-sm font-semibold text-[#171717] ml-1">
                 Edad
               </label>
               <div className="relative">
                 <input
-                  type="text"
+                  type="number"
                   id="edad"
                   placeholder="25"
+                  min={18}
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
                   className="w-full h-12 pl-11 pr-4 border border-black/10 rounded-xl text-base bg-white outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 transition-all"
@@ -243,24 +287,40 @@ export default function NuevoEmpleado() {
               </div>
             </div>
 
-            <div className="md:col-span-2 pt-6 flex flex-col sm:flex-row gap-4">
+            {/* Estado activo */}
+            <div className="flex items-center gap-3 md:col-span-1 pt-2">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                />
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 peer-focus:ring-2 peer-focus:ring-blue-300 transition-all after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+              </label>
+              <span className="text-sm font-semibold text-[#171717]">
+                {isActive ? "Empleado activo" : "Empleado inactivo"}
+              </span>
+            </div>
+
+            {/* Botones */}
+            <div className="md:col-span-2 pt-4 flex flex-col sm:flex-row gap-4">
               <button
                 type="submit"
-                onClick={(e) => handleSubmit(e)}
-                className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white font-bold px-10 h-14 rounded-xl shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all hover:-translate-y-0.5"
+                disabled={loading}
+                className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white font-bold px-10 h-14 rounded-xl shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all hover:-translate-y-0.5 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
               >
-                <Plus size={20} />
-                Registrar empleado
+                <Save size={20} />
+                {loading ? "Guardando..." : "Guardar cambios"}
               </button>
               <button
                 type="button"
-                onClick={() => router.push('/admin/employees-list')}
+                onClick={() => router.push("/admin/employees-list")}
                 className="inline-flex items-center justify-center px-10 h-14 rounded-xl text-[#171717] font-semibold border border-black/10 hover:bg-black/5 transition-colors"
               >
                 Cancelar
               </button>
             </div>
-
           </form>
         </div>
       </section>

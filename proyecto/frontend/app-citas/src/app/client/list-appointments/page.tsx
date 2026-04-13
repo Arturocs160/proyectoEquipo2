@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Plus,
-  Calendar as CalendarIcon,
   MapPin,
   CheckCircle2,
   ChevronRight,
@@ -15,33 +14,87 @@ import {
 } from "lucide-react";
 import Logo from "@/components/Logo";
 
+interface AppointmentItem {
+  id: number;
+  dia: string;
+  mes: string;
+  servicio: string;
+  negocio: string;
+  direccion: string;
+  status: string;
+}
+
+const formatMonth = (date: Date) =>
+  new Intl.DateTimeFormat("es-MX", { month: "short" }).format(date).replace(".", "").toUpperCase();
+
+const mapStatus = (status: string) => {
+  if (status === "confirmed") return "Confirmada";
+  if (status === "cancelled") return "Cancelada";
+  if (status === "completed") return "Completada";
+  return "Pendiente";
+};
+
+const isStatusGreen = (status: string) => status === "Confirmada" || status === "Completada";
+
 export default function CitasPage() {
   // Estados para el flujo sin sesión
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [folio, setFolio] = useState("");
+  const [error, setError] = useState("");
+  const [citas, setCitas] = useState<AppointmentItem[]>([]);
 
-  // Datos de ejemplo (estos vendrían de tu API tras la búsqueda)
-  const citas = [
-    { id: 1, dia: "15", mes: "FEB", servicio: "Corte de Cabello Premium", negocio: "Studio de Belleza Arturo", direccion: "Av. Reforma 123, CDMX", status: "Confirmada" },
-    { id: 2, dia: "22", mes: "FEB", servicio: "Masaje Relajante", negocio: "Wellness Center", direccion: "Colonia Roma Norte, CDMX", status: "Pendiente" },
-  ];
-
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setError("");
     setLoading(true);
-    // Simulación de búsqueda en base de datos
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const params = new URLSearchParams({ email: email.trim() });
+      if (folio.trim()) {
+        params.set("folio", folio.trim());
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments/search?${params.toString()}`);
+      const payload = await res.json();
+
+      if (!res.ok) {
+        throw new Error(payload?.error || payload?.message || "No se pudo realizar la búsqueda");
+      }
+
+      const data = Array.isArray(payload?.data) ? payload.data : [];
+      const mapped: AppointmentItem[] = data.map((item: any) => {
+        const date = new Date(item.scheduled_at);
+        const validDate = Number.isNaN(date.getTime()) ? new Date() : date;
+
+        return {
+          id: item.id,
+          dia: String(validDate.getDate()).padStart(2, "0"),
+          mes: formatMonth(validDate),
+          servicio: item.service_name || "Servicio",
+          negocio: item.business_name || "Negocio",
+          direccion: item.branch_address || item.branch_name || "Dirección no disponible",
+          status: mapStatus(item.status),
+        };
+      });
+
+      setCitas(mapped);
       setHasSearched(true);
-    }, 1500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al buscar citas");
+      setHasSearched(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReset = () => {
     setHasSearched(false);
     setEmail("");
     setFolio("");
+    setError("");
+    setCitas([]);
   };
 
   return (
@@ -92,7 +145,7 @@ export default function CitasPage() {
 
       {/* VISTA 1: Buscador (Si no ha buscado) */}
       {!hasSearched ? (
-        <section className="w-full max-w-[440px] bg-white rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-black/5 p-10 animate-in fade-in zoom-in-95 duration-500">
+        <section className="w-full max-w-110 bg-white rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-black/5 p-10 animate-in fade-in zoom-in-95 duration-500">
           <form className="flex flex-col gap-6" onSubmit={handleSearch}>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-[#171717] ml-1">Correo Electrónico</label>
@@ -135,11 +188,22 @@ export default function CitasPage() {
                 </>
               )}
             </button>
+
+            {error && (
+              <p className="text-sm text-red-600 font-medium">{error}</p>
+            )}
           </form>
         </section>
       ) : (
         /* VISTA 2: Listado (Si ya buscó) */
         <section className="flex flex-col gap-6 w-full max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {citas.length === 0 && (
+            <div className="bg-white border border-black/5 p-8 rounded-4xl shadow-xl shadow-blue-900/5 text-center">
+              <p className="text-lg font-semibold text-[#171717]">No encontramos citas con esos datos.</p>
+              <p className="text-sm text-[#666] mt-2">Verifica tu correo y folio, o intenta sin folio para ver todas tus citas.</p>
+            </div>
+          )}
+
           {citas.map((cita) => (
             <div
               key={cita.id}
@@ -153,7 +217,7 @@ export default function CitasPage() {
               <div className="flex-1 text-center md:text-left space-y-2">
                 <div className="flex flex-col md:flex-row md:items-center gap-2">
                   <h3 className="font-bold text-2xl text-[#171717] tracking-tight">{cita.servicio}</h3>
-                  <span className={`w-fit mx-auto md:mx-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${cita.status === "Confirmada" ? "bg-green-50 text-green-600 border border-green-100" : "bg-yellow-50 text-yellow-600 border border-yellow-100"
+                  <span className={`w-fit mx-auto md:mx-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${isStatusGreen(cita.status) ? "bg-green-50 text-green-600 border border-green-100" : "bg-yellow-50 text-yellow-600 border border-yellow-100"
                     }`}>
                     {cita.status}
                   </span>
@@ -178,15 +242,6 @@ export default function CitasPage() {
           ))}
         </section>
       )}
-
-      {/* Footer / Info */}
-      <footer className="mt-16 text-center">
-        <p className="text-sm text-[#666] max-w-xs mx-auto">
-          {hasSearched
-            ? "¿Necesitas cancelar o reprogramar? Haz clic en la cita para ver las opciones."
-            : "¿No tienes tu folio? Revisa el correo de confirmación que te enviamos al agendar."}
-        </p>
-      </footer>
     </main>
   );
 }

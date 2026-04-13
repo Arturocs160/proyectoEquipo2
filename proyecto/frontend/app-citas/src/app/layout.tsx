@@ -27,7 +27,7 @@ export default function RootLayout({
   const hideMenuRoutes = ["/register", "/login", "/client/list-services", "/client/list-appointments", "/client/business",
     "/admin/dashboard", "/admin/services-list", "/admin/new-service", "/admin/edit-service",
     "/admin/employees-list", "/admin/new-employee", "/admin/edit-employee", "/admin/appointments-list",
-    "/client/select-service", "/client/create-appointment", "/reset-password", "/new-password", "/client/client-data"
+    "/client/select-service", "/client/create-appointment", "/reset-password", "/new-password", "/client/client-data", "/admin/business",
   ]
 
   return (

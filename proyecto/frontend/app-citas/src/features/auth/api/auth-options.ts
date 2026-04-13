@@ -34,6 +34,7 @@ export const authOptions: NextAuthOptions = {
                             email: data.email,
                             accessToken: data.token,
                             role: data.role,
+                            businessId: data.businessId,
                         };
                     }
                     return null;
@@ -49,6 +50,7 @@ export const authOptions: NextAuthOptions = {
                 token.id = user.id
                 token.accessToken = user.accessToken
                 token.role = user.role
+                token.businessId = user.businessId
             }
             return token
         },
@@ -57,6 +59,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.accessToken = token.accessToken
                 session.user.id = token.id
                 session.user.role = token.role
+                session.user.businessId = token.businessId
             }
             return session
         },
