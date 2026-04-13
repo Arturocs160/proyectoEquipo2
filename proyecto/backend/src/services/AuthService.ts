@@ -6,6 +6,7 @@ import TokenBlacklistModel from "@models/TokenBlacklistModel";
 import { Resend } from "resend";
 
 import "dotenv/config"
+import BusinessInfoModel from "@models/BusinessInfoModel";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -52,24 +53,36 @@ class AuthService {
             throw new Error("Credenciales inválidas");
         }
 
+        const businessInfo = await AuthModel.getUserById(id);
+
         const timestamp = Date.now();
 
         const token = jwt.sign({ id, timestamp }, process.env.JWT_SECRET as string, { expiresIn: "1h" });
 
-        return { token, id, full_name, email, role };
+        return { token, id, full_name, email, role, businessId: String(businessInfo[0].businessId) };
     }
 
     static async register(full_name: string, email: string, password: string, role: string, phone: string) {
         const hashedPassword = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
         const id = randomUUID();
 
+
         try {
-            await AuthModel.createAccount(id, full_name, email, hashedPassword, role, phone);
+            const result = await AuthModel.createAccount(id, full_name, email, phone, hashedPassword);
+            // console.log(result)
+
+            return {
+                id: result[0].id,
+                full_name: result[0].full_name,
+                email: result[0].email,
+                phone: result[0].phone,
+                role: result[0].role,
+
+            }
         } catch (error) {
             throw new Error("Error al registrar el usuario");
         }
 
-        return { id, full_name, email, role, phone };
     }
 
     static async logout(authorization: string) {
