@@ -18,7 +18,6 @@ services:
     container_name: citas-frontend
     environment:
       - BACKEND_URL=http://backend:3010
-      - NEXT_PUBLIC_API_URL=http://backend:3010
     ports:
       - "3000:3000"
     depends_on:
