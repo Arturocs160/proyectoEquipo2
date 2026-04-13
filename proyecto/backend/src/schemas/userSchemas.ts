@@ -22,4 +22,6 @@ export const userNewPasswordSchema = z.object({
     newPassword: z.string().min(8, "La contraseña debe tener minimo 8 carácteres").regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial"),
 });
 
-
+export const updateUserRoleSchema = z.object({
+    role: z.enum(["owner", "admin", "employee"], { message: "Rol inválido" }),
+});
