@@ -3,6 +3,8 @@ services:
     build:
       context: proyecto/backend/
     container_name: citas-backend
+    environment:
+      - DB_HOST=database
     ports:
       - "3010:3010"
     depends_on:
@@ -14,6 +16,9 @@ services:
     build:
       context: proyecto/frontend/app-citas
     container_name: citas-frontend
+    environment:
+      - BACKEND_URL=http://backend:3010
+      - NEXT_PUBLIC_API_URL=http://backend:3010
     ports:
       - "3000:3000"
     depends_on:
