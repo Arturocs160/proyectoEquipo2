@@ -15,7 +15,6 @@ export const authOptions: NextAuthOptions = {
             },
             async authorize(credentials) {
                 try {
-
                     const res = await fetch(`${process.env.BACKEND_URL}/auth/login`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -69,16 +68,4 @@ export const authOptions: NextAuthOptions = {
         signOut: "/login",
     },
     secret: process.env.NEXTAUTH_SECRET,
-    cookies: {
-        sessionToken: {
-            name: `next-auth.session-token`,
-            options: {
-                httpOnly: true,
-                sameSite: 'lax',
-                path: '/',
-                secure: process.env.NODE_ENV === "production",
-                maxAge: 30 * 24 * 60 * 60, // Persistencia de la cookie
-            },
-        },
-    },
 }
