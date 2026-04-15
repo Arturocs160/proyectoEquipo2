@@ -10,13 +10,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 
 // Configuración flexible de CORS
-const allowedOrigins = [
+const allowedOrigins: (string | RegExp)[] = [
     'http://localhost:3000',
     'http://localhost:3001',
-    process.env.FRONTEND_URL,
-    // Permitir todos los dominios de Vercel
     /^https:\/\/.*\.vercel\.app$/
-].filter(origin => origin); // Filtrar valores undefined
+];
+
+// Agregar FRONTEND_URL si existe
+if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+}
 
 app.use(cors({
     origin: allowedOrigins,
