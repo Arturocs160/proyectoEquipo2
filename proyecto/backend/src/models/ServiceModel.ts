@@ -30,11 +30,11 @@ class ServiceModel {
 
     static async create(businessId: string, name: string, description: string | null, durationMinutes: number, price: number | null, imageUrl: string | null) {
         try {
-            const result = await connection.query(
-                'INSERT INTO services (business_id, name, description, duration_minutes, price, image_url) VALUES ($1, $2, $3, $4, $5, $6)',
+            const { rows } = await connection.query(
+                'INSERT INTO services (business_id, name, description, duration_minutes, price, image_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
                 [businessId, name, description, durationMinutes, price, imageUrl]
             );
-            return result;
+            return rows as any;
         } catch (error) {
             throw error;
         }

@@ -14,11 +14,13 @@ class EmployeeService {
     }
 
     static async create(branchId: string, fullName: string, specialty: string | null, isActive: boolean = true, age: number, email: string) {
-        return await EmployeeModel.create(branchId, fullName, specialty, isActive, age, email);
+        const result = await EmployeeModel.create(branchId, fullName, specialty, isActive, age, email);
+        return result[0] || null;
     }
 
     static async update(id: string, branchId: string, fullName: string, specialty: string | null, isActive: boolean, age: number, email: string) {
-        return await EmployeeModel.update(id, branchId, fullName, specialty, isActive, age, email);
+        const result = await EmployeeModel.update(id, branchId, fullName, specialty, isActive, age, email);
+        return result[0] || null;
     }
 
     static async delete(id: string) {

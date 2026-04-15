@@ -30,11 +30,11 @@ class EmployeeModel {
 
     static async create(branchId: string, fullName: string, specialty: string | null, isActive: boolean = true, age: number, email: string) {
         try {
-            const result = await connection.query(
-                'INSERT INTO employees (branch_id, full_name, specialty, is_active, age, email) VALUES ($1, $2, $3, $4, $5, $6)',
+            const { rows } = await connection.query(
+                'INSERT INTO employees (branch_id, full_name, specialty, is_active, age, email) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
                 [branchId, fullName, specialty, isActive, age, email]
             );
-            return result;
+            return rows as any;
         } catch (error) {
             throw error;
         }

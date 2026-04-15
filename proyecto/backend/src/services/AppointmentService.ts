@@ -38,11 +38,13 @@ class AppointmentService {
         if (!branchId || !serviceId || !scheduledAt || !bookerName || !bookerEmail || !bookerPhone) {
             throw new Error("Faltan datos obligatorios para crear la cita");
         }
-        return await AppointmentModel.create(branchId, serviceId, scheduledAt, bookerName, bookerEmail, bookerPhone, employeeId, notes);
+        const result = await AppointmentModel.create(branchId, serviceId, scheduledAt, bookerName, bookerEmail, bookerPhone, employeeId, notes);
+        return result[0] || null;
     }
 
     static async updateStatus(id: string, status: string) {
-        return await AppointmentModel.updateStatus(id, status);
+        const result = await AppointmentModel.updateStatus(id, status);
+        return result[0] || null;
     }
 
     static async delete(id: string) {

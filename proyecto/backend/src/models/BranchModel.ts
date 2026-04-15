@@ -21,11 +21,11 @@ class BranchModel {
 
     static async create(businessId: string, name: string, address: string, phone: string) {
         try {
-            const result = await connection.query(
-                'INSERT INTO branches (business_id, name, address, phone) VALUES ($1, $2, $3, $4)',
+            const { rows } = await connection.query(
+                'INSERT INTO branches (business_id, name, address, phone) VALUES ($1, $2, $3, $4) RETURNING *',
                 [businessId, name, address, phone]
             );
-            return result as any;
+            return rows as any;
         } catch (error) {
             throw error;
         }

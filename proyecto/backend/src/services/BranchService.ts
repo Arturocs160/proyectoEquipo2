@@ -13,11 +13,13 @@ class BranchService {
     }
 
     static async create(businessId: string, name: string, address: string, phone: string) {
-        return await BranchModel.create(businessId, name, address, phone);
+        const result = await BranchModel.create(businessId, name, address, phone);
+        return result[0] || null;
     }
 
     static async update(id: string, name: string, address: string, phone: string) {
-        return await BranchModel.update(id, name, address, phone);
+        const result = await BranchModel.update(id, name, address, phone);
+        return result[0] || null;
     }
 
     static async delete(id: string) {

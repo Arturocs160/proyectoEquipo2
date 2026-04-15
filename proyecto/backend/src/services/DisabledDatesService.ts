@@ -6,7 +6,8 @@ class DisabledDatesService {
     }
 
     static async create(businessId: string, closedDate: string, reason: string) {
-        return await DisabledDatesModel.create(businessId, closedDate, reason);
+        const result = await DisabledDatesModel.create(businessId, closedDate, reason);
+        return result[0] || null;
     }
 
     static async delete(id: string) {

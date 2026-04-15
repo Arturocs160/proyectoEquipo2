@@ -12,11 +12,11 @@ class DisabledDatesModel {
 
     static async create(businessId: string, closedDate: string, reason: string) {
         try {
-            const result = await connection.query(
-                'INSERT INTO disabled_dates (business_id, closed_date, reason) VALUES ($1, $2, $3)',
+            const { rows } = await connection.query(
+                'INSERT INTO disabled_dates (business_id, closed_date, reason) VALUES ($1, $2, $3) RETURNING *',
                 [businessId, closedDate, reason || null]
             );
-            return result;
+            return rows as any;
         } catch (error) {
             throw error;
         }

@@ -10,11 +10,13 @@ class ClientService {
     }
 
     static async create(fullName: string, email: string | null, phone: string) {
-        return await ClientModel.create(fullName, email, phone);
+        const result = await ClientModel.create(fullName, email, phone);
+        return result[0] || null;
     }
 
     static async update(id: string, fullName: string, email: string | null, phone: string) {
-        return await ClientModel.update(id, fullName, email, phone);
+        const result = await ClientModel.update(id, fullName, email, phone);
+        return result[0] || null;
     }
 
     static async delete(id: string) {

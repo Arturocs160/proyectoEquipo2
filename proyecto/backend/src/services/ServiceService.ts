@@ -21,7 +21,8 @@ class ServiceService {
             imageUrl = await uploadImage(imageFile.buffer);
         }
 
-        return await ServiceModel.create(businessId, name, description, durationMinutes, price, imageUrl);
+        const result = await ServiceModel.create(businessId, name, description, durationMinutes, price, imageUrl);
+        return result[0] || null;
     }
 
     static async update(id: string, businessId: string, name: string, description: string | null, durationMinutes: number, price: number | null, imageFileOrUrl?: any) {
@@ -34,7 +35,8 @@ class ServiceService {
             imageUrl = imageFileOrUrl;
         }
 
-        return await ServiceModel.update(id, businessId, name, description, durationMinutes, price, imageUrl);
+        const result = await ServiceModel.update(id, businessId, name, description, durationMinutes, price, imageUrl);
+        return result[0] || null;
     }
 
     static async delete(id: string) {

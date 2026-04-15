@@ -9,7 +9,8 @@ class UserService {
         if (!id || !role) {
             throw new Error("El ID del usuario y el rol son requeridos");
         }
-        return await UserModel.updateRole(id, role);
+        const result = await UserModel.updateRole(id, role);
+        return result[0] || null;
     }
 
     static async deleteUser(id: string) {

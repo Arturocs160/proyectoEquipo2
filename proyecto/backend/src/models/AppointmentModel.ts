@@ -223,13 +223,13 @@ class AppointmentModel {
         notes?: string | null
     ) {
         try {
-            const result = await connection.query(
+            const { rows } = await connection.query(
                 `INSERT INTO appointments 
                     (branch_id, employee_id, service_id, scheduled_at, status, booker_name, booker_email, booker_phone, notes) 
-                 VALUES ($1, $2, $3, $4, 'pending', $5, $6, $7, $8)`,
+                 VALUES ($1, $2, $3, $4, 'pending', $5, $6, $7, $8) RETURNING *`,
                 [branchId, employeeId || null, serviceId, scheduledAt, bookerName, bookerEmail, bookerPhone, notes || null]
             );
-            return result;
+            return rows as any;
         } catch (error) {
             throw error;
         }

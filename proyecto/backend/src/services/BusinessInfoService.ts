@@ -49,13 +49,15 @@ class BusinessInfoService {
         const slug = await this.ensureUniqueSlug(slugBase);
         const logoUrl = await this.resolveLogoUrl(logoFileOrUrl);
 
-        return await BusinessInfoModel.create(ownerId, slug, name, specialty, description, location, rating, logoUrl);
+        const result = await BusinessInfoModel.create(ownerId, slug, name, specialty, description, location, rating, logoUrl);
+        return result[0] || null;
     }
 
     static async updateByBusinessId(ownerId: string, businessId: string, name: string, specialty: string, description: string, location: string, rating?: string, logoFileOrUrl?: any) {
         const logoUrl = await this.resolveLogoUrl(logoFileOrUrl);
 
-        return await BusinessInfoModel.updateByBusinessId(ownerId, businessId, name, specialty, description, location, rating, logoUrl);
+        const result = await BusinessInfoModel.updateByBusinessId(ownerId, businessId, name, specialty, description, location, rating, logoUrl);
+        return result[0] || null;
     }
 }
 

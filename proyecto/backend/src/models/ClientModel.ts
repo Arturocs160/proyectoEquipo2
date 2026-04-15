@@ -21,11 +21,11 @@ class ClientModel {
 
     static async create(fullName: string, email: string | null, phone: string) {
         try {
-            const result = await connection.query(
-                'INSERT INTO clients (full_name, email, phone) VALUES ($1, $2, $3)',
+            const { rows } = await connection.query(
+                'INSERT INTO clients (full_name, email, phone) VALUES ($1, $2, $3) RETURNING *',
                 [fullName, email, phone]
             );
-            return result;
+            return rows as any;
         } catch (error) {
             throw error;
         }
