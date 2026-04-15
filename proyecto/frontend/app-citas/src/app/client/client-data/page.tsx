@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Logo from "@/components/Logo";
 
-export default function DatosClientePage() {
+function DatosClientePageContent() {
   const searchParams = useSearchParams();
 
   const businessId = searchParams.get("businessId") || "";
@@ -262,5 +262,19 @@ export default function DatosClientePage() {
         </aside>
       </div>
     </main>
+  );
+}
+
+export default function DatosClientePage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#fdfaf5] flex flex-col items-center justify-center p-6 font-sans">
+          <p className="text-[#666] font-medium">Cargando informacion de la cita...</p>
+        </main>
+      }
+    >
+      <DatosClientePageContent />
+    </Suspense>
   );
 }
