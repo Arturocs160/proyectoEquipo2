@@ -18,7 +18,11 @@ class AppointmentController {
         try {
             const branchId = req.query.branchId as string;
             const businessId = req.query.businessId as string;
+            console.log("getAllWithDetails - branchId:", branchId, "businessId:", businessId, "user:", (req as any).user);
+            
             const appointments = await AppointmentService.getAllWithDetails(branchId, businessId);
+            console.log("getAllWithDetails - returning appointments:", appointments?.length || 0, "items");
+            
             res.status(200).json({ data: appointments });
         } catch (error: any) {
             console.error("Error en AppointmentController.getAllWithDetails:", error);

@@ -60,17 +60,34 @@ export default function DashboardPage() {
   };
 
   const fetchAppointments = async () => {
-    if (!selectedBranchId || !accessToken) return;
+    if (!selectedBranchId || !accessToken) {
+      console.log("Not fetching appointments: selectedBranchId:", selectedBranchId, "accessToken:", !!accessToken);
+      return;
+    }
     try {
       setIsLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/appointments?branchId=${selectedBranchId}`,
-        { headers: { Authorization: `Bearer ${accessToken}` } }
-      );
-      const { data } = await res.json();
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/appointments?branchId=${selectedBranchId}`;
+      console.log("Fetching appointments from:", url);
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      
+      console.log("Response status:", res.status);
+      
+      if (!res.ok) {
+        const errorData = await res.text();
+        console.error("Error response:", res.status, errorData);
+        setAppointments([]);
+        return;
+      }
+      
+      const json = await res.json();
+      console.log("Appointments data:", json);
+      const { data } = json;
       setAppointments(data || []);
     } catch (err) {
       console.error("Error fetching appointments:", err);
+      setAppointments([]);
     } finally {
       setIsLoading(false);
     }
