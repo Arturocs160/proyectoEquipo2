@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Briefcase, ChevronRight, CheckCircle2, Image as ImageIcon } from "lucide-react";
 import Logo from "@/components/Logo";
 
@@ -16,7 +16,7 @@ interface Service {
   image_url: string | null;
 }
 
-export default function ServiciosPage() {
+function ServiciosPageContent() {
   const searchParams = useSearchParams();
   const businessId = searchParams.get("businessId") || "";
   const slug = searchParams.get("slug") || "";
@@ -132,5 +132,19 @@ export default function ServiciosPage() {
         </section>
       )}
     </main>
+  );
+}
+
+export default function ServiciosPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#fdfaf5] flex flex-col items-center justify-center p-6 font-sans">
+          <p className="text-[#666] font-medium">Cargando servicios...</p>
+        </main>
+      }
+    >
+      <ServiciosPageContent />
+    </Suspense>
   );
 }

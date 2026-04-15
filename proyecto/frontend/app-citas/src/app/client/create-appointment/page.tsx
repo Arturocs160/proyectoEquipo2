@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { es } from "date-fns/locale";
 import { format, isBefore, startOfDay } from "date-fns";
@@ -26,7 +26,7 @@ interface Employee {
   is_active: number;
 }
 
-export default function AgendarPage() {
+function AgendarPageContent() {
   const searchParams = useSearchParams();
 
   const businessId = searchParams.get("businessId") || "";
@@ -396,5 +396,19 @@ export default function AgendarPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function AgendarPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#fdfaf5] flex flex-col items-center justify-center p-6 font-sans">
+          <p className="text-[#666] font-medium">Cargando disponibilidad...</p>
+        </main>
+      }
+    >
+      <AgendarPageContent />
+    </Suspense>
   );
 }
