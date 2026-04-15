@@ -1,6 +1,5 @@
 import BusinessInfoModel from "../models/BusinessInfoModel";
 import { uploadImage } from "../config/cloudfinary";
-import fs from "fs";
 
 class BusinessInfoService {
     static async getInfo(ownerId: string) {
@@ -36,14 +35,8 @@ class BusinessInfoService {
     private static async resolveLogoUrl(logoFileOrUrl?: any) {
         let logoUrl: string | undefined = undefined;
 
-        if (logoFileOrUrl && logoFileOrUrl.path) {
-            logoUrl = await uploadImage(logoFileOrUrl.path);
-
-            try {
-                fs.unlinkSync(logoFileOrUrl.path);
-            } catch (err) {
-                console.error("No se pudo eliminar el logo local", err);
-            }
+        if (logoFileOrUrl?.buffer) {
+            logoUrl = await uploadImage(logoFileOrUrl.buffer);
         } else if (typeof logoFileOrUrl === 'string') {
             logoUrl = logoFileOrUrl;
         }

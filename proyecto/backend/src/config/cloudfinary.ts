@@ -8,10 +8,26 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-async function uploadImage(filePath: string) {
+async function uploadImage(file: string | Buffer) {
     try {
-        const { secure_url } = await cloudinary.uploader.upload(filePath);
-        return secure_url;
+        if (typeof file === "string") {
+            const { secure_url } = await cloudinary.uploader.upload(file);
+            return secure_url;
+        }
+
+        const secureUrl = await new Promise<string>((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream((error, result) => {
+                if (error || !result) {
+                    reject(error || new Error("No se obtuvo respuesta de Cloudinary"));
+                    return;
+                }
+                resolve(result.secure_url);
+            });
+
+            uploadStream.end(file);
+        });
+
+        return secureUrl;
     } catch (error) {
         throw error;
     }
