@@ -45,7 +45,7 @@ class AuthService {
             throw new Error("Credenciales inválidas");
         }
 
-        const { id, full_name, role, password: passwordUser } = user[0];
+        const { id, full_name, role, password: passwordUser, email: userEmail } = user[0];
 
         const isPasswordValid = await bcrypt.compare(password, passwordUser);
 
@@ -55,11 +55,15 @@ class AuthService {
 
         const businessInfo = await AuthModel.getUserById(id);
 
+        if (!businessInfo || businessInfo.length === 0 || !businessInfo[0].businessId) {
+            throw new Error("El usuario no tiene un negocio asociado");
+        }
+
         const timestamp = Date.now();
 
         const token = jwt.sign({ id, timestamp }, process.env.JWT_SECRET as string, { expiresIn: "1h" });
 
-        return { token, id, full_name, email, role, businessId: String(businessInfo[0].businessId) };
+        return { token, id, full_name, email: userEmail, role, businessId: String(businessInfo[0].businessId) };
     }
 
     static async register(full_name: string, email: string, password: string, role: string, phone: string) {
@@ -71,13 +75,16 @@ class AuthService {
             const result = await AuthModel.createAccount(id, full_name, email, phone, hashedPassword);
             // console.log(result)
 
+            // Obtener la información del negocio asociado
+            const businessInfo = await AuthModel.getUserById(id);
+
             return {
                 id: result[0].id,
                 full_name: result[0].full_name,
                 email: result[0].email,
                 phone: result[0].phone,
                 role: result[0].role,
-
+                businessId: businessInfo && businessInfo.length > 0 ? String(businessInfo[0].businessId) : undefined,
             }
         } catch (error) {
             throw new Error("Error al registrar el usuario");
