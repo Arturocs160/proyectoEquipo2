@@ -12,7 +12,7 @@ class AuthModel {
 
     static async getUserById(id: string) {
         try {
-            const { rows } = await connection.query('SELECT u.id as userId, u.full_name, u.email, u.role, u.password, b.id as businessId FROM users u LEFT JOIN business_info b ON u.id = b.owner_id WHERE u.id = $1', [id]);
+            const { rows } = await connection.query('SELECT u.id as "userId", u.full_name, u.email, u.role, u.password, b.id as "businessId" FROM users u LEFT JOIN business_info b ON u.id = b.owner_id WHERE u.id = $1', [id]);
             return rows as any;
         } catch (error) {
             throw error;
