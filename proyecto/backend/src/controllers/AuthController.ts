@@ -15,10 +15,11 @@ class AuthController {
                 return;
             }
 
+            console.log("Login exitoso - Email:", email, "BusinessId:", result.businessId);
             response.status(200).json({ message: "Login exitoso", data: result })
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error en AuthController.login:", error);
-            response.status(500).json({ message: "Error interno del servidor", error });
+            response.status(500).json({ message: "Error interno del servidor", error: error.message });
         }
     }
 

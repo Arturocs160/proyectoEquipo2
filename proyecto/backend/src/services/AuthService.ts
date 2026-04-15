@@ -54,16 +54,20 @@ class AuthService {
         }
 
         const businessInfo = await AuthModel.getUserById(id);
-
-        if (!businessInfo || businessInfo.length === 0 || !businessInfo[0].businessId) {
-            throw new Error("El usuario no tiene un negocio asociado");
-        }
+        console.log("businessInfo query result:", businessInfo);
 
         const timestamp = Date.now();
 
         const token = jwt.sign({ id, timestamp }, process.env.JWT_SECRET as string, { expiresIn: "1h" });
 
-        return { token, id, full_name, email: userEmail, role, businessId: String(businessInfo[0].businessId) };
+        // Si no hay información del negocio, permitir el login pero sin businessId
+        const businessId = businessInfo && businessInfo.length > 0 && businessInfo[0].businessId 
+            ? String(businessInfo[0].businessId) 
+            : null;
+        
+        console.log("Returning businessId:", businessId);
+
+        return { token, id, full_name, email: userEmail, role, businessId };
     }
 
     static async register(full_name: string, email: string, password: string, role: string, phone: string) {
