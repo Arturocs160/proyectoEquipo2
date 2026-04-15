@@ -1,8 +1,8 @@
 import { Router } from "express";
-import ClientController from "@controllers/ClientController";
-import { checkAuth } from "@middlewares/checkAuth";
-import { validateData } from "@middlewares/validateData";
-import { createClientSchema, updateClientSchema } from "@schemas/clientSchemas";
+import ClientController from "../controllers/ClientController";
+import { checkAuth } from "../middlewares/checkAuth";
+import { validateData } from "../middlewares/validateData";
+import { createClientSchema, updateClientSchema } from "../schemas/clientSchemas";
 
 const routerClients = Router();
 

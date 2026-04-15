@@ -1,8 +1,8 @@
-import AuthController from "@controllers/AuthController";
-import { checkAuth } from "@middlewares/checkAuth";
+import AuthController from "../controllers/AuthController";
+import { checkAuth } from "../middlewares/checkAuth";
 import { Router } from "express";
-import { userLoginSchema, userNewPasswordSchema, userRegisterSchema, userResetPasswordSchema } from "@schemas/userSchemas";
-import { validateData } from "@middlewares/validateData";
+import { userLoginSchema, userNewPasswordSchema, userRegisterSchema, userResetPasswordSchema } from "../schemas/userSchemas";
+import { validateData } from "../middlewares/validateData";
 
 const routerAuth = Router();
 

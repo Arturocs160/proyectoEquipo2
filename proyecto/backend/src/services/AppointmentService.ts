@@ -1,4 +1,4 @@
-import AppointmentModel from "@models/AppointmentModel";
+import AppointmentModel from "../models/AppointmentModel";
 
 class AppointmentService {
     static async searchByBooker(email: string, folio?: string) {

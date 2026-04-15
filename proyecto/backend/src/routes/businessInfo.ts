@@ -1,9 +1,9 @@
 import { Router } from "express";
-import BusinessInfoController from "@controllers/BusinessInfoController";
-import { checkAuth } from "@middlewares/checkAuth";
-import { validateData } from "@middlewares/validateData";
-import { updateBusinessInfoSchema } from "@schemas/businessInfoSchemas";
-import upload from "@config/multer";
+import BusinessInfoController from "../controllers/BusinessInfoController";
+import { checkAuth } from "../middlewares/checkAuth";
+import { validateData } from "../middlewares/validateData";
+import { updateBusinessInfoSchema } from "../schemas/businessInfoSchemas";
+import upload from "../config/multer";
 
 const routerBusinessInfo = Router();
 

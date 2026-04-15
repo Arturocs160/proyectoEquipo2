@@ -1,4 +1,4 @@
-import ClientModel from "@models/ClientModel";
+import ClientModel from "../models/ClientModel";
 
 class ClientService {
     static async getAll() {

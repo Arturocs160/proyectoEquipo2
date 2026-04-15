@@ -1,9 +1,9 @@
 import { Router } from "express";
-import ServiceController from "@controllers/ServiceController";
-import { checkAuth } from "@middlewares/checkAuth";
-import { validateData } from "@middlewares/validateData";
-import { createServiceSchema, updateServiceSchema } from "@schemas/serviceSchemas";
-import upload from "@config/multer";
+import ServiceController from "../controllers/ServiceController";
+import { checkAuth } from "../middlewares/checkAuth";
+import { validateData } from "../middlewares/validateData";
+import { createServiceSchema, updateServiceSchema } from "../schemas/serviceSchemas";
+import upload from "../config/multer";
 
 const routerServices = Router();
 

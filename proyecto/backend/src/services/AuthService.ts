@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
-import AuthModel from "@models/AuthModel";
-import TokenBlacklistModel from "@models/TokenBlacklistModel";
+import AuthModel from "../models/AuthModel";
+import TokenBlacklistModel from "../models/TokenBlacklistModel";
 import { Resend } from "resend";
 
 import "dotenv/config"
-import BusinessInfoModel from "@models/BusinessInfoModel";
+import BusinessInfoModel from "../models/BusinessInfoModel";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

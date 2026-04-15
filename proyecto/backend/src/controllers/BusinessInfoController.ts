@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import BusinessInfoService from "@services/BusinessInfoService";
+import BusinessInfoService from "../services/BusinessInfoService";
 
 interface AuthenticatedRequest extends Request {
     user?: {

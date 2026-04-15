@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import AppointmentService from "@services/AppointmentService";
-import { availabilitySchema, searchAppointmentsSchema } from "@schemas/appointmentSchemas";
+import AppointmentService from "../services/AppointmentService";
+import { availabilitySchema, searchAppointmentsSchema } from "../schemas/appointmentSchemas";
 
 class AppointmentController {
     static async searchByBooker(req: Request, res: Response) {

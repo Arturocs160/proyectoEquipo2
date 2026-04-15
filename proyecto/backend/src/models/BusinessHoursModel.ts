@@ -1,4 +1,4 @@
-import connection from "@config/db";
+import connection from "../config/db";
 
 class BusinessHoursModel {
     static async getByBusinessId(businessId: string) {

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import DisabledDatesController from "@controllers/DisabledDatesController";
-import { checkAuth } from "@middlewares/checkAuth";
-import { validateData } from "@middlewares/validateData";
-import { createDisabledDateSchema } from "@schemas/disabledDatesSchemas";
+import DisabledDatesController from "../controllers/DisabledDatesController";
+import { checkAuth } from "../middlewares/checkAuth";
+import { validateData } from "../middlewares/validateData";
+import { createDisabledDateSchema } from "../schemas/disabledDatesSchemas";
 
 const routerDisabledDates = Router();
 

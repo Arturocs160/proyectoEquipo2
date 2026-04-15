@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import DisabledDatesService from "@services/DisabledDatesService";
+import DisabledDatesService from "../services/DisabledDatesService";
 
 class DisabledDatesController {
     static async getByBusinessId(req: Request, res: Response) {

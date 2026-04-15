@@ -1,4 +1,4 @@
-import connection from "@config/db";
+import connection from "../config/db";
 
 class ServiceModel {
     static async getByBusinessId(businessId: string) {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import BusinessHoursService from "@services/BusinessHoursService";
+import BusinessHoursService from "../services/BusinessHoursService";
 
 class BusinessHoursController {
     static async getByBusinessId(req: Request, res: Response) {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import BranchService from "@services/BranchService";
+import BranchService from "../services/BranchService";
 
 class BranchController {
     static async getAll(req: Request, res: Response) {

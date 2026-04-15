@@ -1,8 +1,8 @@
 import { Router } from "express";
-import BusinessHoursController from "@controllers/BusinessHoursController";
-import { checkAuth } from "@middlewares/checkAuth";
-import { validateData } from "@middlewares/validateData";
-import { upsertBusinessHoursSchema } from "@schemas/businessHoursSchemas";
+import BusinessHoursController from "../controllers/BusinessHoursController";
+import { checkAuth } from "../middlewares/checkAuth";
+import { validateData } from "../middlewares/validateData";
+import { upsertBusinessHoursSchema } from "../schemas/businessHoursSchemas";
 
 const routerBusinessHours = Router();
 

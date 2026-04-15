@@ -1,8 +1,8 @@
 import { Router } from "express";
-import EmployeeController from "@controllers/EmployeeController";
-import { checkAuth } from "@middlewares/checkAuth";
-import { validateData } from "@middlewares/validateData";
-import { createEmployeeSchema, updateEmployeeSchema } from "@schemas/employeeSchemas";
+import EmployeeController from "../controllers/EmployeeController";
+import { checkAuth } from "../middlewares/checkAuth";
+import { validateData } from "../middlewares/validateData";
+import { createEmployeeSchema, updateEmployeeSchema } from "../schemas/employeeSchemas";
 
 const routerEmployees = Router();
 

@@ -1,4 +1,4 @@
-import connection from "@config/db";
+import connection from "../config/db";
 
 class ClientModel {
     static async getAll() {

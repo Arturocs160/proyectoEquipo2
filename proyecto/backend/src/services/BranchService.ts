@@ -1,4 +1,4 @@
-import BranchModel from "@models/BranchModel";
+import BranchModel from "../models/BranchModel";
 
 class BranchService {
     static async getAll(businessId: string) {

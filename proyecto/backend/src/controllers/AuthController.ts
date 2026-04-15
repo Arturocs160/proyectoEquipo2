@@ -1,5 +1,5 @@
-import AuthModel from "@models/AuthModel";
-import AuthService from "@services/AuthService";
+import AuthModel from "../models/AuthModel";
+import AuthService from "../services/AuthService";
 import { Request, Response } from "express";
 
 class AuthController {

@@ -1,5 +1,5 @@
-import BusinessInfoModel from "@models/BusinessInfoModel";
-import { uploadImage } from "@config/cloudfinary";
+import BusinessInfoModel from "../models/BusinessInfoModel";
+import { uploadImage } from "../config/cloudfinary";
 import fs from "fs";
 
 class BusinessInfoService {

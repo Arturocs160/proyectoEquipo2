@@ -1,4 +1,4 @@
-import EmployeeModel from "@models/EmployeeModel";
+import EmployeeModel from "../models/EmployeeModel";
 
 class EmployeeService {
     static async getByBranchId(branchId: string) {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ClientService from "@services/ClientService";
+import ClientService from "../services/ClientService";
 
 class ClientController {
     static async getAll(req: Request, res: Response) {

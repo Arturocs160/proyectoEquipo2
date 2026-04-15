@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import TokenBlacklistModel from "@models/TokenBlacklistModel";
+import TokenBlacklistModel from "../models/TokenBlacklistModel";
 
 interface AuthenticatedRequest extends Request {
     user?: any;

@@ -1,4 +1,4 @@
-import connection from '@config/db';
+import connection from '../config/db';
 
 export interface ITokenBlacklist {
     id: number;

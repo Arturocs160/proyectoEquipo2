@@ -1,5 +1,5 @@
-import ServiceModel from "@models/ServiceModel";
-import { uploadImage } from "@config/cloudfinary";
+import ServiceModel from "../models/ServiceModel";
+import { uploadImage } from "../config/cloudfinary";
 import fs from "fs";
 
 class ServiceService {

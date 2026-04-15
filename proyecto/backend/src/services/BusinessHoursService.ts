@@ -1,4 +1,4 @@
-import BusinessHoursModel from "@models/BusinessHoursModel";
+import BusinessHoursModel from "../models/BusinessHoursModel";
 
 class BusinessHoursService {
     static async getByBusinessId(businessId: string) {

@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import pool from "@config/db";
+import pool from "../config/db";
 
 type InsertResult = {
     insertId: number;
@@ -43,7 +43,7 @@ async function seedDatabase(force = false) {
         await connection.query(
             `INSERT INTO users (id, full_name, email, phone, password, role)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [ownerId, "Admin Demo", "admin@demo.com", "3000000000", ownerPassword, "owner"]
+            [ownerId, "Admin Demo", "admin../demo.com", "3000000000", ownerPassword, "owner"]
         );
 
         const [businessResult] = await connection.query(
@@ -114,14 +114,14 @@ async function seedDatabase(force = false) {
         const [employee1Result] = await connection.query(
             `INSERT INTO employees (branch_id, full_name, email, age, specialty, is_active)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [branchMainId, "Carlos Perez", "carlos@demo.com", 29, "Corte clasico", 1]
+            [branchMainId, "Carlos Perez", "carlos../demo.com", 29, "Corte clasico", 1]
         );
         const employee1Id = (employee1Result as InsertResult).insertId;
 
         const [employee2Result] = await connection.query(
             `INSERT INTO employees (branch_id, full_name, email, age, specialty, is_active)
              VALUES (?, ?, ?, ?, ?, ?)`,
-            [branchNorthId, "Laura Gomez", "laura@demo.com", 31, "Barba y perfilado", 1]
+            [branchNorthId, "Laura Gomez", "laura../demo.com", 31, "Barba y perfilado", 1]
         );
         const employee2Id = (employee2Result as InsertResult).insertId;
 
@@ -144,7 +144,7 @@ async function seedDatabase(force = false) {
                 "2026-04-15 10:00:00",
                 "confirmed",
                 "Cliente Demo",
-                "cliente1@correo.com",
+                "cliente1../correo.com",
                 "3110000001",
                 "Prefiere corte corto"
             ]
@@ -169,7 +169,7 @@ async function seedDatabase(force = false) {
                 "2026-04-16 14:30:00",
                 "pending",
                 "Cliente Prueba",
-                "cliente2@correo.com",
+                "cliente2../correo.com",
                 "3110000002",
                 "Primera visita"
             ]
@@ -178,7 +178,7 @@ async function seedDatabase(force = false) {
         await connection.commit();
 
         console.log("Seed completado correctamente.");
-        console.log("Usuario owner: admin@demo.com / Owner123*");
+        console.log("Usuario owner: admin../demo.com / Owner123*");
     } catch (error) {
         await connection.rollback();
         throw error;

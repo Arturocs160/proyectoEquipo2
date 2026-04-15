@@ -1,4 +1,4 @@
-import DisabledDatesModel from "@models/DisabledDatesModel";
+import DisabledDatesModel from "../models/DisabledDatesModel";
 
 class DisabledDatesService {
     static async getByBusinessId(businessId: string) {

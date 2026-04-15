@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import ServiceService from "@services/ServiceService";
+import ServiceService from "../services/ServiceService";
 
 class ServiceController {
     static async getAll(req: Request, res: Response) {
