@@ -8,6 +8,7 @@ class DisabledDatesController {
             const dates = await DisabledDatesService.getByBusinessId(businessId);
             res.status(200).json({ data: dates });
         } catch (error: any) {
+            console.error("Error en DisabledDatesController.getByBusinessId:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -18,6 +19,7 @@ class DisabledDatesController {
             const result = await DisabledDatesService.create(businessId, closedDate, reason);
             res.status(201).json({ message: "Fecha bloqueada registrada", data: result });
         } catch (error: any) {
+            console.error("Error en DisabledDatesController.create:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -28,6 +30,7 @@ class DisabledDatesController {
             await DisabledDatesService.delete(id);
             res.status(200).json({ message: "Fecha bloqueada eliminada" });
         } catch (error: any) {
+            console.error("Error en DisabledDatesController.delete:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }

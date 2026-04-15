@@ -7,6 +7,7 @@ class ClientController {
             const clients = await ClientService.getAll();
             res.status(200).json({ data: clients });
         } catch (error: any) {
+            console.error("Error en ClientController.getAll:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -17,6 +18,7 @@ class ClientController {
             const client = await ClientService.getById(id);
             res.status(200).json({ data: client });
         } catch (error: any) {
+            console.error("Error en ClientController.getById:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -27,6 +29,7 @@ class ClientController {
             const result = await ClientService.create(fullName, email, phone);
             res.status(201).json({ message: "Cliente creado exitosamente", data: result });
         } catch (error: any) {
+            console.error("Error en ClientController.create:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -38,6 +41,7 @@ class ClientController {
             const updated = await ClientService.update(id, fullName, email, phone);
             res.status(200).json({ message: "Cliente actualizado", data: updated });
         } catch (error: any) {
+            console.error("Error en ClientController.update:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -48,6 +52,7 @@ class ClientController {
             await ClientService.delete(id);
             res.status(200).json({ message: "Cliente eliminado" });
         } catch (error: any) {
+            console.error("Error en ClientController.delete:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }

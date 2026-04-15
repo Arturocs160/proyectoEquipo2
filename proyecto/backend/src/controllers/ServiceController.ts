@@ -7,6 +7,7 @@ class ServiceController {
             const services = await ServiceService.getAll();
             res.status(200).json({ data: services });
         } catch (error: any) {
+            console.error("Error en ServiceController.getAll:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -17,6 +18,7 @@ class ServiceController {
             const services = await ServiceService.getByBusinessId(businessId);
             res.status(200).json({ data: services });
         } catch (error: any) {
+            console.error("Error en ServiceController.getByBusinessId:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -27,6 +29,7 @@ class ServiceController {
             const service = await ServiceService.getById(id);
             res.status(200).json({ data: service });
         } catch (error: any) {
+            console.error("Error en ServiceController.getById:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -47,6 +50,7 @@ class ServiceController {
 
             res.status(201).json({ message: "Servicio creado", data: result });
         } catch (error: any) {
+            console.error("Error en ServiceController.create:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -69,6 +73,7 @@ class ServiceController {
 
             res.status(200).json({ message: "Servicio actualizado", data: result });
         } catch (error: any) {
+            console.error("Error en ServiceController.update:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -79,6 +84,7 @@ class ServiceController {
             await ServiceService.delete(id);
             res.status(200).json({ message: "Servicio eliminado" });
         } catch (error: any) {
+            console.error("Error en ServiceController.delete:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }

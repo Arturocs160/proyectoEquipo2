@@ -9,6 +9,7 @@ class AppointmentController {
             const appointments = await AppointmentService.searchByBooker(parsed.email, parsed.folio);
             res.status(200).json({ data: appointments });
         } catch (error: any) {
+            console.error("Error en AppointmentController.searchByBooker:", error);
             res.status(400).json({ message: "Error al buscar citas", error: error.message });
         }
     }
@@ -20,6 +21,7 @@ class AppointmentController {
             const appointments = await AppointmentService.getAllWithDetails(branchId, businessId);
             res.status(200).json({ data: appointments });
         } catch (error: any) {
+            console.error("Error en AppointmentController.getAllWithDetails:", error);
             res.status(500).json({ message: "Error al obtener las citas", error: error.message });
         }
     }
@@ -31,6 +33,7 @@ class AppointmentController {
             const appointment = await AppointmentService.getById(id);
             res.status(200).json({ data: appointment });
         } catch (error: any) {
+            console.error("Error en AppointmentController.getById:", error);
             res.status(500).json({ message: "Error interno del servidor", error: error.message });
         }
     }
@@ -47,6 +50,7 @@ class AppointmentController {
             );
             res.status(201).json({ message: "Cita creada con éxito", data: result });
         } catch (error: any) {
+            console.error("Error en AppointmentController.create:", error);
             res.status(500).json({ message: "Error al crear la cita", error: error.message });
         }
     }
@@ -59,6 +63,7 @@ class AppointmentController {
             const availability = await AppointmentService.getAvailability(businessId, serviceId, date, branchId, employeeId);
             res.status(200).json({ data: availability });
         } catch (error: any) {
+            console.error("Error en AppointmentController.getAvailability:", error);
             res.status(500).json({ message: "Error al consultar disponibilidad", error: error.message });
         }
     }
@@ -70,6 +75,7 @@ class AppointmentController {
             const updated = await AppointmentService.updateStatus(id, status);
             res.status(200).json({ message: "Cita actualizada", data: updated });
         } catch (error: any) {
+            console.error("Error en AppointmentController.updateStatus:", error);
             res.status(500).json({ message: "Error interno del servidor", error: error.message });
         }
     }
@@ -80,6 +86,7 @@ class AppointmentController {
             await AppointmentService.delete(id);
             res.status(200).json({ message: "Cita eliminada" });
         } catch (error: any) {
+            console.error("Error en AppointmentController.delete:", error);
             res.status(500).json({ message: "Error interno del servidor", error: error.message });
         }
     }

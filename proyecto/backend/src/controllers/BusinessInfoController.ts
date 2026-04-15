@@ -14,6 +14,7 @@ class BusinessInfoController {
             const info = await BusinessInfoService.getInfo(ownerId);
             res.status(200).json({ data: info });
         } catch (error: any) {
+            console.error("Error en BusinessInfoController.getInfo:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -24,6 +25,7 @@ class BusinessInfoController {
             const info = await BusinessInfoService.getBySlug(slug);
             res.status(200).json({ data: info });
         } catch (error: any) {
+            console.error("Error en BusinessInfoController.getBySlug:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }

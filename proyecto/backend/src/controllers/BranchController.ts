@@ -8,6 +8,7 @@ class BranchController {
             const branches = await BranchService.getAll(businessId);
             res.status(200).json({ data: branches });
         } catch (error: any) {
+            console.error("Error en BranchController.getAll:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -18,6 +19,7 @@ class BranchController {
             const branch = await BranchService.getById(id);
             res.status(200).json({ data: branch });
         } catch (error: any) {
+            console.error("Error en BranchController.getById:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -28,6 +30,7 @@ class BranchController {
             const result = await BranchService.create(businessId, name, address, phone);
             res.status(201).json({ message: "Sucursal creada", data: result });
         } catch (error: any) {
+            console.error("Error en BranchController.create:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -39,6 +42,7 @@ class BranchController {
             const result = await BranchService.update(id, name, address, phone);
             res.status(200).json({ message: "Sucursal actualizada", data: result });
         } catch (error: any) {
+            console.error("Error en BranchController.update:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -49,6 +53,7 @@ class BranchController {
             await BranchService.delete(id);
             res.status(200).json({ message: "Sucursal eliminada" });
         } catch (error: any) {
+            console.error("Error en BranchController.delete:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }

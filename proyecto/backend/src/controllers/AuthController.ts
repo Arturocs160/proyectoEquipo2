@@ -17,6 +17,7 @@ class AuthController {
 
             response.status(200).json({ message: "Login exitoso", data: result })
         } catch (error) {
+            console.error("Error en AuthController.login:", error);
             response.status(500).json({ message: "Error interno del servidor", error });
         }
     }
@@ -41,6 +42,7 @@ class AuthController {
 
             response.status(201).json({ message: "Registro exitoso", data: result })
         } catch (error) {
+            console.error("Error en AuthController.register:", error);
             response.status(500).json({ message: "Error interno del servidor", error });
         }
     }
@@ -57,6 +59,7 @@ class AuthController {
             await AuthService.logout(authorization)
             response.status(200).json({ message: "Logout exitoso" })
         } catch (error) {
+            console.error("Error en AuthController.logout:", error);
             response.status(500).json({ message: "Error al cerrar sesión" })
         }
     }
@@ -68,7 +71,7 @@ class AuthController {
 
             response.status(200).json({ message: 'Si el correo existe, se ha enviado un enlace de recuperación.' });
         } catch (error: any) {
-            console.log(error);
+            console.error("Error en AuthController.forgotPassword:", error);
             response.status(400).json({ message: 'Error al procesar la solicitud' });
         }
     }
@@ -80,6 +83,7 @@ class AuthController {
 
             response.status(200).json({ message: 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión.' });
         } catch (error: any) {
+            console.error("Error en AuthController.resetPassword:", error);
             response.status(400).json({ message: 'Error al restablecer la contraseña' });
         }
     }

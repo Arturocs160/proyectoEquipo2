@@ -7,6 +7,7 @@ class UserController {
             const users = await UserService.getAll();
             res.status(200).json({ data: users });
         } catch (error: any) {
+            console.error("Error en UserController.getAll:", error);
             res.status(500).json({ message: "Error interno del servidor", error: error.message });
         }
     }
@@ -18,6 +19,7 @@ class UserController {
             const updated = await UserService.updateRole(id, role);
             res.status(200).json({ message: "Rol actualizado exitosamente", data: updated });
         } catch (error: any) {
+            console.error("Error en UserController.updateRole:", error);
             res.status(500).json({ message: "Error al actualizar rol", error: error.message });
         }
     }
@@ -28,6 +30,7 @@ class UserController {
             await UserService.deleteUser(id);
             res.status(200).json({ message: "Usuario eliminado exitosamente" });
         } catch (error: any) {
+            console.error("Error en UserController.deleteUser:", error);
             res.status(500).json({ message: "Error al eliminar usuario", error: error.message });
         }
     }

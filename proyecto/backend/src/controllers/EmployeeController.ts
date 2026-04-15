@@ -7,6 +7,7 @@ class EmployeeController {
             const employees = await EmployeeService.getAll();
             res.status(200).json({ data: employees });
         } catch (error: any) {
+            console.error("Error en EmployeeController.getAll:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -17,6 +18,7 @@ class EmployeeController {
             const employees = await EmployeeService.getByBranchId(branchId);
             res.status(200).json({ data: employees });
         } catch (error: any) {
+            console.error("Error en EmployeeController.getByBranchId:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -27,6 +29,7 @@ class EmployeeController {
             const employee = await EmployeeService.getById(id);
             res.status(200).json({ data: employee });
         } catch (error: any) {
+            console.error("Error en EmployeeController.getById:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -37,6 +40,7 @@ class EmployeeController {
             const result = await EmployeeService.create(branchId, fullName, specialty, Boolean(isActive), age, email);
             res.status(201).json({ message: "Empleado creado", data: result });
         } catch (error: any) {
+            console.error("Error en EmployeeController.create:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -48,6 +52,7 @@ class EmployeeController {
             const result = await EmployeeService.update(id, branchId, fullName, specialty, Boolean(isActive), age, email);
             res.status(200).json({ message: "Empleado actualizado", data: result });
         } catch (error: any) {
+            console.error("Error en EmployeeController.update:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -58,6 +63,7 @@ class EmployeeController {
             await EmployeeService.delete(id);
             res.status(200).json({ message: "Empleado eliminado" });
         } catch (error: any) {
+            console.error("Error en EmployeeController.delete:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }

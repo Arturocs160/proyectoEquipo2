@@ -8,6 +8,7 @@ class BusinessHoursController {
             const hours = await BusinessHoursService.getByBusinessId(businessId);
             res.status(200).json({ data: hours });
         } catch (error: any) {
+            console.error("Error en BusinessHoursController.getByBusinessId:", error);
             res.status(500).json({ message: "Error interno", error: error.message });
         }
     }
@@ -19,6 +20,7 @@ class BusinessHoursController {
             await BusinessHoursService.upsert(businessId, Number(dayOfWeek), openTime, closeTime, Boolean(isActive));
             res.status(200).json({ message: "Horarios guardados exitosamente" });
         } catch (error: any) {
+            console.error("Error en BusinessHoursController.upsert:", error);
             res.status(500).json({ message: "Error interno al guardar horarios", error: error.message });
         }
     }
