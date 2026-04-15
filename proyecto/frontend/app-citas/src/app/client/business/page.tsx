@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, MapPin, Clock, Star, ChevronRight, Info, Search } from "lucide-react";
 import Logo from "@/components/Logo";
 
@@ -27,7 +27,7 @@ interface BusinessHour {
 
 const DAY_ORDER = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
 
-export default function ExplorarPage() {
+function ExplorarPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug") || "";
@@ -252,5 +252,19 @@ export default function ExplorarPage() {
         <span>Reserva en menos de 2 minutos</span>
       </div>
     </main>
+  );
+}
+
+export default function ExplorarPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#fdfaf5] flex flex-col items-center justify-center p-6 font-sans">
+          <p className="text-[#666] font-medium">Cargando informacion del negocio...</p>
+        </main>
+      }
+    >
+      <ExplorarPageContent />
+    </Suspense>
   );
 }
