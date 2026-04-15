@@ -3,7 +3,7 @@ import connection from "@config/db";
 class BusinessHoursModel {
     static async getByBusinessId(businessId: string) {
         try {
-            const [rows] = await connection.query('SELECT * FROM business_hours WHERE business_id = ? ORDER BY day_of_week ASC', [businessId]);
+            const { rows } = await connection.query('SELECT * FROM business_hours WHERE business_id = $1 ORDER BY day_of_week ASC', [businessId]);
             
             // Mapear al formato esperado por el frontend
             const daysMap = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -30,17 +30,17 @@ class BusinessHoursModel {
     static async upsert(businessId: string, dayOfWeek: number, openTime: string | null, closeTime: string | null, isActive: boolean) {
         try {
             // Revisar si ya existe
-            const [existing] = await connection.query('SELECT id FROM business_hours WHERE business_id = ? AND day_of_week = ?', [businessId, dayOfWeek]) as any[];
+            const { rows: existing } = await connection.query('SELECT id FROM business_hours WHERE business_id = $1 AND day_of_week = $2', [businessId, dayOfWeek]);
             
             if (existing && existing.length > 0) {
                 await connection.query(
-                    'UPDATE business_hours SET open_time = ?, close_time = ?, is_active = ? WHERE business_id = ? AND day_of_week = ?',
-                    [openTime, closeTime, isActive ? 1 : 0, businessId, dayOfWeek]
+                    'UPDATE business_hours SET open_time = $1, close_time = $2, is_active = $3 WHERE business_id = $4 AND day_of_week = $5',
+                    [openTime, closeTime, isActive, businessId, dayOfWeek]
                 );
             } else {
                 await connection.query(
-                    'INSERT INTO business_hours (business_id, day_of_week, open_time, close_time, is_active) VALUES (?, ?, ?, ?, ?)',
-                    [businessId, dayOfWeek, openTime, closeTime, isActive ? 1 : 0]
+                    'INSERT INTO business_hours (business_id, day_of_week, open_time, close_time, is_active) VALUES ($1, $2, $3, $4, $5)',
+                    [businessId, dayOfWeek, openTime, closeTime, isActive]
                 );
             }
             return true;

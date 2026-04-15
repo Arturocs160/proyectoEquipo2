@@ -16,18 +16,18 @@ class AppointmentModel {
                 JOIN services s ON a.service_id = s.id
                 JOIN branches b ON a.branch_id = b.id
                 JOIN business_info bi ON b.business_id = bi.id
-                WHERE LOWER(a.booker_email) = LOWER(?)
+                WHERE LOWER(a.booker_email) = LOWER($1)
             `;
             const params: any[] = [email];
 
             if (folio) {
-                query += ' AND a.id = ?';
+                query += ' AND a.id = $2';
                 params.push(folio);
             }
 
             query += ' ORDER BY a.scheduled_at DESC';
 
-            const [rows] = await connection.query(query, params);
+            const { rows } = await connection.query(query, params);
             return rows as any[];
         } catch (error) {
             throw error;
@@ -39,15 +39,15 @@ class AppointmentModel {
             let selectedBranchId = branchId;
 
             if (!selectedBranchId) {
-                const [branchRows] = await connection.query(
-                    'SELECT id FROM branches WHERE business_id = ? ORDER BY id ASC LIMIT 1',
+                const { rows: branchRows } = await connection.query(
+                    'SELECT id FROM branches WHERE business_id = $1 ORDER BY id ASC LIMIT 1',
                     [businessId]
                 );
                 const branch = (branchRows as any[])[0];
                 selectedBranchId = branch ? String(branch.id) : undefined;
             } else {
-                const [branchRows] = await connection.query(
-                    'SELECT id FROM branches WHERE id = ? AND business_id = ? LIMIT 1',
+                const { rows: branchRows } = await connection.query(
+                    'SELECT id FROM branches WHERE id = $1 AND business_id = $2 LIMIT 1',
                     [selectedBranchId, businessId]
                 );
                 if ((branchRows as any[]).length === 0) {
@@ -61,18 +61,18 @@ class AppointmentModel {
 
             const dayOfWeek = new Date(`${date}T00:00:00`).getDay();
 
-            const [disabledRows] = await connection.query(
-                'SELECT id FROM disabled_dates WHERE business_id = ? AND closed_date = ? LIMIT 1',
+            const { rows: disabledRows } = await connection.query(
+                'SELECT id FROM disabled_dates WHERE business_id = $1 AND closed_date = $2 LIMIT 1',
                 [businessId, date]
             );
             if ((disabledRows as any[]).length > 0) {
                 return { branchId: selectedBranchId, slots: [] };
             }
 
-            const [hoursRows] = await connection.query(
+            const { rows: hoursRows } = await connection.query(
                 `SELECT open_time, close_time, is_active
                  FROM business_hours
-                 WHERE business_id = ? AND day_of_week = ?
+                 WHERE business_id = $1 AND day_of_week = $2
                  LIMIT 1`,
                 [businessId, dayOfWeek]
             );
@@ -82,8 +82,8 @@ class AppointmentModel {
                 return { branchId: selectedBranchId, slots: [] };
             }
 
-            const [serviceRows] = await connection.query(
-                'SELECT duration_minutes FROM services WHERE id = ? AND business_id = ? LIMIT 1',
+            const { rows: serviceRows } = await connection.query(
+                'SELECT duration_minutes FROM services WHERE id = $1 AND business_id = $2 LIMIT 1',
                 [serviceId, businessId]
             );
             const service = (serviceRows as any[])[0];
@@ -96,21 +96,21 @@ class AppointmentModel {
 
                         let busyQuery =
                                 `SELECT
-                                        TIME_FORMAT(a.scheduled_at, '%H:%i') as start_time,
+                                        TO_CHAR(a.scheduled_at, 'HH24:MI') as start_time,
                                         s.duration_minutes as duration_minutes
                                  FROM appointments a
                                  JOIN services s ON a.service_id = s.id
-                                 WHERE a.branch_id = ?
-                                     AND DATE(a.scheduled_at) = ?
+                                 WHERE a.branch_id = $1
+                                     AND a.scheduled_at::date = $2::date
                                      AND a.status IN ('pending', 'confirmed', 'completed')`;
                         const busyParams: any[] = [selectedBranchId, date];
 
             if (employeeId) {
-                busyQuery += ' AND a.employee_id = ?';
+                busyQuery += ' AND a.employee_id = $3';
                 busyParams.push(employeeId);
             }
 
-            const [busyRows] = await connection.query(busyQuery, busyParams);
+            const { rows: busyRows } = await connection.query(busyQuery, busyParams);
 
             const toMinutes = (time: string) => {
                 const [hh, mm] = time.split(":").map(Number);
@@ -159,7 +159,7 @@ class AppointmentModel {
                     a.booker_name,
                     a.booker_email,
                     e.full_name as empleado,
-                    DATE_FORMAT(a.scheduled_at, '%h:%i %p') as hora, 
+                    TO_CHAR(a.scheduled_at, 'HH12:MI AM') as hora, 
                     a.status,
                     a.scheduled_at as raw_date
                 FROM appointments a
@@ -170,16 +170,16 @@ class AppointmentModel {
             const params: any[] = [];
 
             if (branchId) {
-                query += ' WHERE a.branch_id = ?';
+                query += ' WHERE a.branch_id = $1';
                 params.push(branchId);
             } else if (businessId) {
-                query += ' WHERE b.business_id = ?';
+                query += ' WHERE b.business_id = $1';
                 params.push(businessId);
             }
 
             query += ' ORDER BY a.scheduled_at DESC';
 
-            const [rows] = await connection.query(query, params);
+            const { rows } = await connection.query(query, params);
             const data = (rows as any[]).map(row => {
                 let formattedStatus = "Pendiente";
                 if (row.status === 'confirmed') formattedStatus = "Confirmado";
@@ -205,7 +205,7 @@ class AppointmentModel {
 
     static async getById(id: string) {
         try {
-            const [rows] = await connection.query('SELECT * FROM appointments WHERE id = ?', [id]);
+            const { rows } = await connection.query('SELECT * FROM appointments WHERE id = $1', [id]);
             return rows as any;
         } catch (error) {
             throw error;
@@ -223,10 +223,10 @@ class AppointmentModel {
         notes?: string | null
     ) {
         try {
-            const [result] = await connection.query(
+            const result = await connection.query(
                 `INSERT INTO appointments 
                     (branch_id, employee_id, service_id, scheduled_at, status, booker_name, booker_email, booker_phone, notes) 
-                 VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?)`,
+                 VALUES ($1, $2, $3, $4, 'pending', $5, $6, $7, $8)`,
                 [branchId, employeeId || null, serviceId, scheduledAt, bookerName, bookerEmail, bookerPhone, notes || null]
             );
             return result;
@@ -237,8 +237,8 @@ class AppointmentModel {
 
     static async updateStatus(id: string, status: string) {
         try {
-            await connection.query('UPDATE appointments SET status = ? WHERE id = ?', [status, id]);
-            const [rows] = await connection.query('SELECT * FROM appointments WHERE id = ?', [id]);
+            await connection.query('UPDATE appointments SET status = $1 WHERE id = $2', [status, id]);
+            const { rows } = await connection.query('SELECT * FROM appointments WHERE id = $1', [id]);
             return rows as any;
         } catch (error) {
             throw error;
@@ -247,7 +247,7 @@ class AppointmentModel {
 
     static async delete(id: string) {
         try {
-            const [result] = await connection.query('DELETE FROM appointments WHERE id = ?', [id]);
+            const result = await connection.query('DELETE FROM appointments WHERE id = $1', [id]);
             return result;
         } catch (error) {
             throw error;
